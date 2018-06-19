@@ -21,7 +21,6 @@ import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
@@ -136,6 +135,8 @@ public class IndicatorSeekBar extends View {
     private int mThumbTextColor;
     private boolean mHideThumb;
 
+    private int mDividerRectWidth;
+
     public IndicatorSeekBar(Context context) {
         this(context, null);
     }
@@ -227,13 +228,19 @@ public class IndicatorSeekBar extends View {
         if (indicatorTopContentLayoutId > 0) {
             mIndicatorTopContentView = View.inflate(mContext, indicatorTopContentLayoutId, null);
         }
+        mDividerRectWidth = ta.getDimensionPixelSize(R.styleable.IndicatorSeekBar_isb_tick_divider_rect_width, 0);
         ta.recycle();
     }
 
     private void initParams() {
+        if (mTicksCount < 0) {
+            mTicksCount = (int) (Math.abs(mMax) + Math.abs(mMin));
+        }
+        /*
         if (mTicksCount < 0 || mTicksCount > 50) {
             throw new IllegalArgumentException("the Argument: TICK COUNT must be limited between 0-50, Now is " + mTicksCount);
         }
+        */
         initProgressRangeValue();
         if (mBackgroundTrackSize > mProgressTrackSize) {
             mBackgroundTrackSize = mProgressTrackSize;
@@ -459,7 +466,7 @@ public class IndicatorSeekBar extends View {
     }
 
     private void drawTrack(Canvas canvas) {
-        if (mCustomTrackSectionColorResult) {//the track has custom the section track color
+        if (mCustomTrackSectionColorResult && mTicksCount > 0) {//the track has custom the section track color
             int sectionSize = mTicksCount - 1 > 0 ? mTicksCount - 1 : 1;
             for (int i = 0; i < sectionSize; i++) {
                 if (mR2L) {
@@ -541,14 +548,16 @@ public class IndicatorSeekBar extends View {
             if (mShowTickMarksType == TickMarkType.OVAL) {
                 canvas.drawCircle(mTickMarksX[i], mProgressTrack.top, mTickRadius, mStockPaint);
             } else if (mShowTickMarksType == TickMarkType.DIVIDER) {
-                int rectWidth = SizeUtils.dp2px(mContext, 1);
-                float dividerTickHeight;
-                if (thumbCenterX >= mTickMarksX[i]) {
-                    dividerTickHeight = getLeftSideTrackSize();
-                } else {
-                    dividerTickHeight = getRightSideTrackSize();
+                //int rectWidth = SizeUtils.dp2px(mContext, 1);
+                if (mDividerRectWidth > 0) {
+                    float dividerTickHeight;
+                    if (thumbCenterX >= mTickMarksX[i]) {
+                        dividerTickHeight = getLeftSideTrackSize();
+                    } else {
+                        dividerTickHeight = getRightSideTrackSize();
+                    }
+                    canvas.drawRect(mTickMarksX[i] - mDividerRectWidth, mProgressTrack.top - dividerTickHeight / 2.0f, mTickMarksX[i] + mDividerRectWidth, mProgressTrack.top + dividerTickHeight / 2.0f, mStockPaint);
                 }
-                canvas.drawRect(mTickMarksX[i] - rectWidth, mProgressTrack.top - dividerTickHeight / 2.0f, mTickMarksX[i] + rectWidth, mProgressTrack.top + dividerTickHeight / 2.0f, mStockPaint);
             } else if (mShowTickMarksType == TickMarkType.SQUARE) {
                 canvas.drawRect(mTickMarksX[i] - mTickMarksSize / 2.0f, mProgressTrack.top - mTickMarksSize / 2.0f, mTickMarksX[i] + mTickMarksSize / 2.0f, mProgressTrack.top + mTickMarksSize / 2.0f, mStockPaint);
             }

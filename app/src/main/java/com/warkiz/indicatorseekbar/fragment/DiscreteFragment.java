@@ -1,6 +1,5 @@
 package com.warkiz.indicatorseekbar.fragment;
 
-import android.graphics.Color;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,15 +33,18 @@ public class DiscreteFragment extends BaseFragment {
 
         //custom section color
         IndicatorSeekBar sectionSeekBar = root.findViewById(R.id.custom_section_color);
-
+        sectionSeekBar.setMin(-100);
+        sectionSeekBar.setMax(100);
         sectionSeekBar.customSectionTrackColor(new ColorCollector() {
             @Override
             public boolean collectSectionTrackColor(int[] colorIntArr) {
                 //the length of colorIntArray equals section count
+                /*
                 colorIntArr[0] = getResources().getColor(R.color.color_blue, null);
                 colorIntArr[1] = getResources().getColor(R.color.color_gray, null);
                 colorIntArr[2] = Color.parseColor("#FF4081");
                 colorIntArr[3] = Color.parseColor("#303F9F");
+                */
                 return true;//true if apply color , otherwise no change
             }
         });
